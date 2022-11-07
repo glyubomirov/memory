@@ -1,0 +1,59 @@
+.flipped {
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+}
+
+.sample-img{
+	border: 2px solid #FFFFFF;
+	border-radius: 15px;
+}
+
+.sample-img:hover{
+	border-width: 2px;
+	border-style: solid;
+	border-color: #BBBBBB;
+	border-radius: 15px;
+}
+
+.memory-area{
+	border-width: 2px;
+	border-style: dashed;
+	border-color: #BBBBBB;
+	border-radius: 15px;
+}
+
+.memory-area-hidden{
+	-webkit-transition: opacity 1s ease-in-out, display 1s ease-in-out;
+	-moz-transition: opacity 1s ease-in-out, display 1s ease-in-out;
+	-ms-transition: opacity 1s ease-in-out, display 1s ease-in-out;
+	-o-transition: opacity 1s ease-in-out, display 1s ease-in-out;
+	opacity: 0;
+	display: none;
+}
+
+.samples-area-shown{
+	-webkit-transition: opacity 1s ease-in-out;
+	-moz-transition: opacity 1s ease-in-out;
+	-ms-transition: opacity 1s ease-in-out;
+	-o-transition: opacity 1s ease-in-out;
+	opacity: 1;
+}
+
+.samples-area-hidden{
+	-webkit-transition: opacity 1s ease-in-out;
+	-moz-transition: opacity 1s ease-in-out;
+	-ms-transition: opacity 1s ease-in-out;
+	-o-transition: opacity 1s ease-in-out;
+	opacity: 0;
+}
+
+.wrong-selection{
+	border-width: 2px;
+	border-style: solid;
+	border-color: #F00;
+	border-radius: 15px;
+}
+
+.correct-selection{
+	border: 2px solid #0F0;
+}
