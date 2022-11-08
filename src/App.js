@@ -32,8 +32,9 @@ import skye from "./img/badges/skye.png";
 import zuma from "./img/badges/zuma.png";
 import rubble from "./img/badges/rubble.png";
 
-import successAudio from "./sound/success.mp3";
-import failedAudio from "./sound/failed.mp3";
+import successGameSound from "./sound/success-game.mp3";
+import successLevelSound from "./sound/success-level.mp3";
+import failedLevelSound from "./sound/failed.mp3";
 import "./App.css";
 import Fireworks from "@fireworks-js/react";
 import Button from "react-bootstrap/Button";
@@ -73,11 +74,17 @@ class App extends React.Component {
 			elements: [],
 			selectedElements: [],
 			level: 0,
-			gameState: GameState.NoGame
+			gameState: GameState.NoGame,
+			isBadgePopoutShown: false
 		};
 
-		this.success = new Audio(successAudio);
-		this.failed = new Audio(failedAudio);
+		this.successGameSound = new Audio(successGameSound);
+		this.successLevelSound = new Audio(successLevelSound);
+		this.failedLevelSound = new Audio(failedLevelSound);
+
+		this.showBadgePopout = this.showBadgePopout.bind(this);
+		this.removeBadgePopout = this.removeBadgePopout.bind(this);
+		this.showBadge = this.showBadge.bind(this);
 	}
 
 	newGame () {
@@ -86,7 +93,8 @@ class App extends React.Component {
 			elements: elements,
 			selectedElements: [],
 			level: 0,
-			gameState: GameState.NewGame
+			gameState: GameState.NewGame,
+			isBadgePopoutShown: false
 		});
 	}
 
@@ -101,7 +109,8 @@ class App extends React.Component {
 			elements: elements,
 			selectedElements: [],
 			level: level,
-			gameState: GameState.NewGame
+			gameState: GameState.NewGame,
+			isBadgePopoutShown: false
 		});
 	}
 
@@ -123,22 +132,28 @@ class App extends React.Component {
 			}
 		}
 
-		let level = this.state.level + 1;
-		this.setState({
-			gameState: isWon?GameState.WonGame:GameState.LostGame,
-			level: level
-		});
+		let level = this.state.level;
 
 		if (isWon) {
-			this.success.play();
+			this.successLevelSound.play();
+			this.showBadgePopout(level);
 		} else {
-			this.failed.play();
+			this.failedLevelSound.play();
 		}
+
+		this.setState({
+			gameState: isWon?GameState.WonGame:GameState.LostGame
+		});
 	}
 
 	onSelected(element) {
+		if (this.state.selectedElements.length > this.state.level ) {
+			return;
+		}
 		let selectedElements = this.state.selectedElements;
-		selectedElements.push(element);
+		if (selectedElements.indexOf(element) === -1) {
+			selectedElements.push(element);
+		}
 		this.setState({
 			selectedElements: selectedElements,
 		});
@@ -147,7 +162,7 @@ class App extends React.Component {
 	onRemove(index) {
 		let selectedElements = [...this.state.selectedElements];
 		selectedElements.splice(index, 1);
-		console.log(index, selectedElements);
+
 		this.setState({
 			selectedElements: selectedElements,
 		});
@@ -174,71 +189,87 @@ class App extends React.Component {
 		return array;
 	}
 
+	showBadgePopout() {
+		this.setState({
+			isBadgePopoutShown: true
+		});
+		setTimeout(this.removeBadgePopout, 1000);
+	}
+
+	removeBadgePopout() {
+
+		this.setState({
+			isBadgePopoutShown: false
+		});
+
+		setTimeout(this.showBadge, 500);
+	}
+
+	showBadge() {
+		let level = this.state.level + 1;
+		this.setState({
+			isBadgePopoutShown: false,
+			level: level
+		});
+
+		if (this.state.gameState === GameState.WonGame && this.state.level >= 5) {
+			this.successGameSound.play();
+		}
+	}
+
 	render () {
 		return (
 			<React.Fragment>
-				<Container className={"d-flex flex-row mx-auto"} style={{ maxWidth: "500px"}}>
-					<Row className={"row-cols-6"} style={{height:"100px"}}>
-						<Col className={`px-1 my-auto ${(this.state.level > 0?"d-block":"d-none")}`}>
-							<img
-								src={skye}
-								style={{
-									width: "100%"
-								}}/>
+				<div className={`reward-wrapper ${(this.state.isBadgePopoutShown?"show-reward-wrapper":"")}`}>
+					{
+						(this.state.level === 0) ? <img src={skye}/>
+								: (this.state.level === 1) ? <img src={zuma}/>
+										: (this.state.level === 2) ? <img src={rocky}/>
+												: (this.state.level === 3) ? <img src={rubble}/>
+														: (this.state.level === 4) ? <img src={marshall}/>
+																: (this.state.level === 5) ? <img src={chase}/>
+																		: <React.Fragment/>
+					}
+				</div>
+				<Container fluid={"true"} className={"d-flex flex-row mx-auto"} style={{ maxWidth: "500px"}}>
+					<Row className={"row-cols-6"} style={{minHeight:"100px"}}>
+						<Col className={`px-0 badge ${(this.state.level > 0?"show-badge":"")}`}>
+							<img src={skye} />
 						</Col>
-						<Col className={`px-1 my-auto ${(this.state.level > 1?"d-block":"d-none")}`}>
-							<img
-									src={zuma}
-									style={{
-										width: "100%"
-									}}/>
+						<Col className={`px-0 badge ${(this.state.level > 1?"show-badge":"")}`}>
+							<img src={zuma} />
 						</Col>
-						<Col className={`px-1 my-auto ${(this.state.level > 2?"d-block":"d-none")}`}>
-							<img
-									src={rocky}
-									style={{
-										width: "100%"
-									}}/>
+						<Col className={`px-0 badge ${(this.state.level > 2?"show-badge":"")}`}>
+							<img src={rocky} />
 						</Col>
-						<Col className={`px-1 my-auto ${(this.state.level > 3?"d-block":"d-none")}`}>
-							<img
-									src={rubble}
-									style={{
-										width: "100%"
-									}}/>
+						<Col className={`px-0 badge ${(this.state.level > 3?"show-badge":"")}`}>
+							<img src={rubble} />
 						</Col>
-						<Col className={`px-1 my-auto ${(this.state.level > 4?"d-block":"d-none")}`}>
-							<img
-									src={marshall}
-									style={{
-										width: "100%"
-									}}/>
+						<Col className={`px-0 badge ${(this.state.level > 4?"show-badge":"")}`}>
+							<img src={marshall} />
 						</Col>
-						<Col className={`px-1 my-auto ${(this.state.level > 5?"d-block":"d-none")}`}>
-							<img
-									src={chase}
-									style={{
-										width: "100%"
-									}}/>
+						<Col className={`px-0 badge ${(this.state.level > 5?"show-badge":"")}`}>
+							<img src={chase} />
 						</Col>
 					</Row>
 				</Container>
+
 				<Container fluid={"true"} className={"d-flex flex-row mx-auto my-0"} style={{ maxWidth: "500px"}}>
 					<Row className={"row-cols-5"}>
 						{this.state.elements.map((item, key) => {
 							return (
-								<Col key={key} className={"m-0 p-0"} style={{minWidth: "100px", minHeight: "100px"}}>
-									<div className={`m-1 p-0 
+								<Col key={key} className={"m-0 p-1"} style={{minWidth: "100px", minHeight: "100px"}}>
+									<div className={`m-0 p-0 
 									${( this.state.gameState === GameState.LostGame && this.state.selectedElements[key] !== item )?" wrong-selection ":" memory-area "}
-									${( this.state.gameState === GameState.WonGame )?" correct-selection":" "}
-									`} style={{minWidth: "95px", minHeight: "95px"}}>
+									${( (this.state.gameState === GameState.WonGame || this.state.gameState === GameState.LostGame) && this.state.selectedElements[key] === item)?" correct-selection":" "}
+									`} style={{minWidth: "100px", minHeight: "100px"}}>
 										{(this.state.selectedElements.length > key)?
 												<img
 														src={this.state.selectedElements[key]}
 														onClick={this.onRemove.bind(this, key)}
 														className={`${( this.state.gameState !== GameState.Guessing && this.state.gameState !== GameState.LostGame )?"memory-area-hidden":""}`}
 														style={{
-															width: "90px", height: "90px"
+															width: "100%", height: "100%"
 														}}
 												/>
 												:
@@ -248,7 +279,7 @@ class App extends React.Component {
 											src={item}
 											className={`${( this.state.gameState === GameState.Guessing )?"memory-area-hidden":""}`}
 											style={{
-												width: "90px", height: "90px"
+												width: "100%", height: "100%"
 											}}
 										/>
 									</div>
@@ -257,6 +288,7 @@ class App extends React.Component {
 						})}
 					</Row>
 				</Container>
+
 				<Container>
 					<Row>
 						<Col className={"p-2 mx-auto text-center"}>
@@ -298,7 +330,8 @@ class App extends React.Component {
 										className={"sample-img"}
 										style={{
 											width: "100%",
-											height: "100%"
+											height: "100%",
+											visibility: this.state.selectedElements.indexOf(item) > -1 ? "hidden" : "visible"
 										}}
 									/>
 								</Col>
@@ -307,7 +340,7 @@ class App extends React.Component {
 					</Row>
 				</Container>
 
-				{(this.state.gameState === GameState.WonGame && this.state.level >= 2) ? (
+				{(this.state.gameState === GameState.WonGame && this.state.level >= 6) ? (
 					<Fireworks
 						options={{
 							rocketsPoint: {
