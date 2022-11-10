@@ -88,11 +88,12 @@ class App extends React.Component {
 	}
 
 	newGame () {
-		let elements = [[...IMAGES][Math.floor(Math.random() * SIZE)]];
+		let level = 0;
+		let elements = this.shuffle([...IMAGES]).slice(SIZE - level - 1);
 		this.setState({
 			elements: elements,
 			selectedElements: [],
-			level: 0,
+			level: level,
 			gameState: GameState.NewGame,
 			isBadgePopoutShown: false
 		});
@@ -231,45 +232,43 @@ class App extends React.Component {
 																		: <React.Fragment/>
 					}
 				</div>
-				<Container fluid={"true"} className={"d-flex flex-row mx-auto"} style={{ maxWidth: "500px"}}>
-					<Row className={"row-cols-6"} style={{minHeight:"100px"}}>
-						<Col className={`px-0 badge ${(this.state.level > 0?"show-badge":"")}`}>
+				<Container fluid={"true"} className={"mx-auto px-3"} style={{ maxWidth: "500px"}}>
+					<Row className={"row-cols-6"}>
+						<Col className={`px-0 badge ${(this.state.level > 0 ?"show-badge":"")}`}>
 							<img src={skye} />
 						</Col>
-						<Col className={`px-0 badge ${(this.state.level > 1?"show-badge":"")}`}>
+						<Col className={`px-0 badge ${(this.state.level > 1 ?"show-badge":"")}`}>
 							<img src={zuma} />
 						</Col>
-						<Col className={`px-0 badge ${(this.state.level > 2?"show-badge":"")}`}>
+						<Col className={`px-0 badge ${(this.state.level > 2 ?"show-badge":"")}`}>
 							<img src={rocky} />
 						</Col>
-						<Col className={`px-0 badge ${(this.state.level > 3?"show-badge":"")}`}>
+						<Col className={`px-0 badge ${(this.state.level > 3 ?"show-badge":"")}`}>
 							<img src={rubble} />
 						</Col>
-						<Col className={`px-0 badge ${(this.state.level > 4?"show-badge":"")}`}>
+						<Col className={`px-0 badge ${(this.state.level > 4 ?"show-badge":"")}`}>
 							<img src={marshall} />
 						</Col>
-						<Col className={`px-0 badge ${(this.state.level > 5?"show-badge":"")}`}>
+						<Col className={`px-0 badge ${(this.state.level > 5 ?"show-badge":"")}`}>
 							<img src={chase} />
 						</Col>
 					</Row>
-				</Container>
 
-				<Container fluid={"true"} className={"d-flex flex-row mx-auto my-0"} style={{ maxWidth: "500px"}}>
 					<Row className={"row-cols-5"}>
 						{this.state.elements.map((item, key) => {
 							return (
-								<Col key={key} className={"m-0 p-1"} style={{minWidth: "100px", minHeight: "100px"}}>
+								<Col key={key} className={"m-0 p-1"}>
 									<div className={`m-0 p-0 
 									${( this.state.gameState === GameState.LostGame && this.state.selectedElements[key] !== item )?" wrong-selection ":" memory-area "}
 									${( (this.state.gameState === GameState.WonGame || this.state.gameState === GameState.LostGame) && this.state.selectedElements[key] === item)?" correct-selection":" "}
-									`} style={{minWidth: "100px", minHeight: "100px"}}>
+									`} style={{minHeight: "100%"}}>
 										{(this.state.selectedElements.length > key)?
 												<img
 														src={this.state.selectedElements[key]}
 														onClick={this.onRemove.bind(this, key)}
 														className={`${( this.state.gameState !== GameState.Guessing && this.state.gameState !== GameState.LostGame )?"memory-area-hidden":""}`}
 														style={{
-															width: "100%", height: "100%"
+															width: "100%"
 														}}
 												/>
 												:
@@ -279,7 +278,7 @@ class App extends React.Component {
 											src={item}
 											className={`${( this.state.gameState === GameState.Guessing )?"memory-area-hidden":""}`}
 											style={{
-												width: "100%", height: "100%"
+												width: "100%"
 											}}
 										/>
 									</div>
@@ -287,30 +286,28 @@ class App extends React.Component {
 							);
 						})}
 					</Row>
-				</Container>
 
-				<Container>
-					<Row>
-						<Col className={"p-2 mx-auto text-center"}>
+					<Row className={"row-cols-12 justify-content-md-center"}>
+						<Col className={"p-2 text-center"}>
 							{(this.state.gameState === GameState.NewGame) ? (
 
-								<Button variant={"primary"} onClick={this.onRemember.bind(this)}>
+								<Button variant={"primary"} className={"mx-auto"} onClick={this.onRemember.bind(this)}>
 									Запомних
 								</Button>
 
 							) : (this.state.gameState === GameState.Guessing) ? (
 
-								<Button variant={"success"} onClick={this.onDone.bind(this)}>
+								<Button variant={"success"} className={"mx-auto"} onClick={this.onDone.bind(this)}>
 									Готов съм
 								</Button>
 							) : (this.state.gameState === GameState.WonGame) ? (
 
-								<Button variant={"success"} onClick={this.nextGame.bind(this)}>
+								<Button variant={"success"} className={"mx-auto"} onClick={this.nextGame.bind(this)}>
 									Следваща игра
 								</Button>
 							) : (this.state.gameState === GameState.LostGame) ? (
 
-								<Button variant={"success"} onClick={this.newGame.bind(this)}>
+								<Button variant={"success"} className={"mx-auto"} onClick={this.newGame.bind(this)}>
 									Нова игра
 								</Button>
 							) :
@@ -320,7 +317,7 @@ class App extends React.Component {
 					</Row>
 				</Container>
 
-				<Container fluid={"true"} className={`d-flex flex-row mx-auto my-0 ${(this.state.gameState === GameState.Guessing)?"samples-area-shown":"samples-area-hidden"}`} style={{ maxWidth: "500px" }}>
+				<Container className={`mx-auto my-0 ${(this.state.gameState === GameState.Guessing)?"samples-area-shown d-flex":"samples-area-hidden d-none"}`} style={{ maxWidth: "500px" }}>
 					<Row className={"row-cols-5"}>
 						{IMAGES.map((item, key) => {
 							return (
